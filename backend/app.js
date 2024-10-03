@@ -19,8 +19,8 @@ connectDB();
 app.use(cloudinaryMiddleware);
 app.use('/api/book',bookRotues);
 app.get('/',(req, res)=>{
-frontend/node_modules
-    res("/hello");
+
+    res.json({msg:"hello"});
 })
 app.post('/api/translate', async (req, res) => {
     const { text, targetLanguage } = req.body;
