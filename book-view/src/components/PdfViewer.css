@@ -1,0 +1,22 @@
+.custom-context-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.custom-context-menu div {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.custom-context-menu div:hover {
+    background-color: #f0f0f0;
+}
+
+.pdf-viewer {
+    position: relative;
+    height: 100vh; /* Adjust height as needed */
+}
