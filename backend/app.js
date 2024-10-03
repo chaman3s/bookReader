@@ -4,7 +4,12 @@ const translate = require('translate-google');
 const bookRotues = require('./routes/bookRoutes');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: '*', // Allows all websites (including localhost) to access the API
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+    credentials: false // Set to false if you do not need to send credentials (cookies or HTTP authentication)
+  }));
 app.use(express.json());
 const connectDB = require('./config/db'); 
 const cloudinaryMiddleware = require('./config/cloudinary');
@@ -13,6 +18,10 @@ connectDB();
 
 app.use(cloudinaryMiddleware);
 app.use('/api/book',bookRotues);
+app.get('/',(req, res)=>{
+frontend/node_modules
+    res("/hello");
+})
 app.post('/api/translate', async (req, res) => {
     const { text, targetLanguage } = req.body;
 

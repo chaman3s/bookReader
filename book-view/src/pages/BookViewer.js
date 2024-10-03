@@ -34,7 +34,7 @@ const BookViewer = () => {
         const bookdata = {
             bookname: bookname,
             authorname: authorname,
-            bookedition: booked,
+            bookedition: bookedition,
         };
         dispatch(getAllNote(bookdata));
         setCount(booknote.length);
@@ -133,9 +133,9 @@ const BookViewer = () => {
                 };
                 setNotes(notes.concat([note]));
                 const bookDataToSend = {
-                    bookname: "12 Months to $1 Million",
-                    authorname: "Ryan Daniel Moran",
-                    bookedition: 1,
+                    bookname: bookname,
+                    authorname: authorname,
+                    bookedition: bookedition,
                     note: note,
                 };
 
@@ -238,7 +238,7 @@ const BookViewer = () => {
         >
             <Viewer
                 ref={viewerRef} // Attach ref to viewer
-                fileUrl={"https://res.cloudinary.com/dkorw2nfi/raw/upload/v1727919206/faieqmgdyl9zirpywuoo.pdf"}
+                fileUrl={bookpath}
                 plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}
                 onDocumentLoad={handleDocumentLoad} // Jump to the correct page after load
                 onPageChange={handlePageChange} // Track page changes
