@@ -12,6 +12,11 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 import { addNoteToBook, updateLastOpenPage, getAllNote } from '../store/reducers/bookSlice';
 
+// Wrap the Viewer component to support refs
+const ViewerWithRef = React.forwardRef((props, ref) => (
+    <Viewer {...props} ref={ref} />
+));
+
 const BookViewer = () => {
     const [message, setMessage] = useState('');
     const [notes, setNotes] = useState([]);
@@ -20,7 +25,8 @@ const BookViewer = () => {
     const [selectionPosition, setSelectionPosition] = useState({ top: 0, left: 0 });
     const [show, Setshow] = useState(false);
     const [Run, setRun] = useState(false);
-    const viewerRef = useRef(null); // Store Viewer instance reference
+    const [lastpage,setlastpage] = useState(0);
+    const viewerRef = useRef(null);
     const bookpath = useSelector((state) => state.book.bookpath);
     const lastOpenPage = useSelector((state) => state.book.lastOpenPage); // lastOpenPage is 3
     const booknote = useSelector((state) => state.book.booknote);
@@ -29,42 +35,51 @@ const BookViewer = () => {
     let bookedition = useSelector((state) => state.book.edition);
     const dispatch = useDispatch();
     const [count, setCount] = useState(null);
+    
 
     useEffect(() => {
-        const bookdata = {
-            bookname: bookname,
-            authorname: authorname,
-            bookedition: bookedition,
+        let bookdata = {
+            bookname: "The Comedy Bible - PDFDrive.com",
+            authorname: "Judy Carter",
+            bookedition: 1,
+            
         };
         dispatch(getAllNote(bookdata));
+        setlastpage(lastOpenPage);
+        setlastpage(3);
+        console.log("heylastpage:",lastpage);
         setCount(booknote.length);
     }, []);
 
     useEffect(() => {
         if (count === 0) {
             setNotes(booknote);
+            
         }
         setCount(booknote.length);
     }, [booknote]);
+    useEffect(() => {
+        setlastpage(lastOpenPage);
+       
+    }, [lastOpenPage]);
 
-    const handleDocumentLoad = () => {
-        if (viewerRef.current) {
-            // Get the current PDF document from the viewer
-            viewerRef.current.viewer.getCurrentPdfDocument().then((pdf) => {
-                // Set the desired page (3rd page), pageIndex is zero-based
-                const pageIndex =  2;
-                
-                // Use scrollPageIntoView to jump to the specified page
-                viewerRef.current.viewer.scrollPageIntoView({ pageIndex });
-            });
-        }
-    };
-    
+
+  
 
     const handlePageChange = (e) => {
-        // You can uncomment and use this for tracking page change
-        // const newPage = e.currentPage;
-        // dispatch(updateLastOpenPage(newPage)); // Update last open page in Redux
+        const newPage = e.currentPage;
+        updateLastOpenPage()
+        let bookdata = {
+            bookname: "The Comedy Bible - PDFDrive.com",
+            authorname: "Judy Carter",
+            bookedition: 1,
+            
+        };
+        bookdata["lastpageopen"] = newPage;
+        console.log("book: ",bookdata);
+        dispatch(updateLastOpenPage(bookdata));
+        // setCount(booknote.length);
+        dispatch(updateLastOpenPage(newPage));
     };
 
     const handleUpload = () => {
@@ -236,12 +251,11 @@ const BookViewer = () => {
                 overflow: 'hidden',
             }}
         >
-            <Viewer
-                ref={viewerRef} // Attach ref to viewer
+             <Viewer
                 fileUrl={bookpath}
                 plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}
-                onDocumentLoad={handleDocumentLoad} // Jump to the correct page after load
-                onPageChange={handlePageChange} // Track page changes
+                onPageChange={handlePageChange}
+                initialPage={lastpage}
             />
         </div>
     );

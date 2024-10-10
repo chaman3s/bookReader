@@ -4,6 +4,7 @@ import LandingPage from './pages/Landingpage';
 import ViewerPage from './components/DocumentViewer';
 // import PdfViewer from './components/Test';
 import Viewer from './pages/BookViewer';
+// import Viewer from "./components/Temp";
 const App = () => {
   return (
     <Router>

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     highlightPlugin,
-    
 } from '@react-pdf-viewer/highlight';
 import { Button, Position, PrimaryButton, Tooltip, Viewer } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -10,9 +10,14 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/highlight/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
-import pdf from './practice_mind.pdf'; // Import the PDF
+import { addNoteToBook, updateLastOpenPage, getAllNote } from '../store/reducers/bookSlice';
 
-const RenderHighlightsExample = () => {
+// Wrap the Viewer component to support refs
+const ViewerWithRef = React.forwardRef((props, ref) => (
+    <Viewer {...props} ref={ref} />
+));
+
+const BookViewer = () => {
     const [message, setMessage] = useState('');
     const [notes, setNotes] = useState([]);
     let noteId = notes.length;
@@ -20,6 +25,66 @@ const RenderHighlightsExample = () => {
     const [selectionPosition, setSelectionPosition] = useState({ top: 0, left: 0 });
     const [show, Setshow] = useState(false);
     const [Run, setRun] = useState(false);
+    const [lastpage,setlastpage] = useState(0);
+    const viewerRef = useRef(null);
+    const bookpath = useSelector((state) => state.book.bookpath);
+    const lastOpenPage = useSelector((state) => state.book.lastOpenPage); // lastOpenPage is 3
+    const booknote = useSelector((state) => state.book.booknote);
+    let bookname = useSelector((state) => state.book.bookname);
+    let authorname = useSelector((state) => state.book.authorname);
+    let bookedition = useSelector((state) => state.book.edition);
+    const dispatch = useDispatch();
+    const [count, setCount] = useState(null);
+    
+
+    useEffect(() => {
+        let bookdata = {
+            bookname: "The Comedy Bible - PDFDrive.com",
+            authorname: "Judy Carter",
+            bookedition: 1,
+            
+        };
+        dispatch(getAllNote(bookdata));
+        setlastpage(lastOpenPage);
+        setlastpage(3);
+        console.log("heylastpage:",lastpage);
+        setCount(booknote.length);
+    }, []);
+
+    useEffect(() => {
+        if (count === 0) {
+            setNotes(booknote);
+            
+        }
+        setCount(booknote.length);
+    }, [booknote]);
+    useEffect(() => {
+        setlastpage(lastOpenPage);
+       
+    }, [lastOpenPage]);
+
+
+  
+
+    const handlePageChange = (e) => {
+        const newPage = e.currentPage;
+        updateLastOpenPage()
+        let bookdata = {
+            bookname: "The Comedy Bible - PDFDrive.com",
+            authorname: "Judy Carter",
+            bookedition: 1,
+            
+        };
+        bookdata["lastpageopen"] = newPage;
+        console.log("book: ",bookdata);
+        dispatch(updateLastOpenPage(bookdata));
+        // setCount(booknote.length);
+        dispatch(updateLastOpenPage(newPage));
+    };
+
+    const handleUpload = () => {
+        console.log("upload clicked");
+    };
 
     const renderHighlightTarget = (props) => (
         <div
@@ -46,11 +111,10 @@ const RenderHighlightsExample = () => {
                             zIndex: 1000,
                             display: 'flex',
                             gap: '10px',
-                            top: `${selectionPosition.top}px`, // Absolute pixel positioning
+                            top: `${selectionPosition.top}px`,
                             left: `${selectionPosition.left}px`,
                         }}
                         onClick={props.toggle}>
-                        {/* Color selection options */}
                         {['yellow', 'green', 'blue', 'pink'].map((color, index) => (
                             <div
                                 key={index}
@@ -83,7 +147,20 @@ const RenderHighlightsExample = () => {
                     color: Color,
                 };
                 setNotes(notes.concat([note]));
-                console.log(note);
+                const bookDataToSend = {
+                    bookname: bookname,
+                    authorname: authorname,
+                    bookedition: bookedition,
+                    note: note,
+                };
+
+                dispatch(addNoteToBook(bookDataToSend))
+                    .unwrap()
+                    .catch((err) => {
+                        console.error('Failed to add book:', err);
+                        alert(err);
+                    });
+
                 if (show) { Setshow(false); props.cancel(); }
                 else setRun(false);
             }
@@ -115,7 +192,6 @@ const RenderHighlightsExample = () => {
                     style={{
                         display: 'flex',
                         marginTop: '8px',
-                        display: (show) ? "block" : "none"
                     }}
                 >
                     <div style={{ marginRight: '8px' }}>
@@ -151,13 +227,21 @@ const RenderHighlightsExample = () => {
         </div>
     );
 
-    // Initialize both plugins
     const highlightPluginInstance = highlightPlugin({
         renderHighlightTarget,
         renderHighlightContent,
         renderHighlights,
     });
-    const defaultLayoutPluginInstance = defaultLayoutPlugin();
+    const defaultLayoutPluginInstance = defaultLayoutPlugin({
+        toolbarPlugin: {
+            Toolbar: (props) => (
+                <>
+                    {props.renderDefaultToolbar()}
+                    <Button onClick={handleUpload}>Upload</Button>
+                </>
+            ),
+        },
+    });
 
     return (
         <div
@@ -167,12 +251,14 @@ const RenderHighlightsExample = () => {
                 overflow: 'hidden',
             }}
         >
-            <Viewer
-                fileUrl={pdf}
-                plugins={[highlightPluginInstance, defaultLayoutPluginInstance]} // Add the layout plugin
+             <Viewer
+                fileUrl={"https://res.cloudinary.com/dkorw2nfi/raw/upload/v1728354076/a70cdsm4epfur1tza6zg.pdf"}
+                plugins={[highlightPluginInstance, defaultLayoutPluginInstance]}
+                onPageChange={handlePageChange}
+                initialPage={lastpage}
             />
         </div>
     );
 };
 
-export default RenderHighlightsExample;
+export default BookViewer;

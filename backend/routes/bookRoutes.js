@@ -170,7 +170,7 @@ router.post('/getnotes', async (req, res) => {
     const book = await Book.findOne({ bookname: bookname, authorname: authorname, bookedition: bookedition });
 
     if (book) {
-      return res.json({ notes: book.booknote });
+      return res.json({ notes: book.booknote ,lastpageopen: book.lastOpenPage});
     } else {
       return res.status(404).json({ msg: "Book not found" });
     }
@@ -182,15 +182,15 @@ router.post('/getnotes', async (req, res) => {
 
 // Update lastOpenPage
 router.put('/updatepage', async (req, res) => {
-  const { bookname,authorname,edition, lastOpenPage } = req.body;
+  const { bookname,authorname,bookedition, lastpageopen } = req.body;
 
   try {
-    const book = await Book.findOne({bookname: bookname, authorname: authorname, bookedition: edition});
+    const book = await Book.findOne({bookname: bookname, authorname: authorname, bookedition: bookedition});
 
     if (book) {
-      book.lastOpenPage = lastOpenPage;
+      book.lastOpenPage = lastpageopen;
       await book.save();
-      return res.json({ msg: "Page updated", lastOpenPage });
+      return res.json({ msg: "Page updated", lastpageopen });
     } else {
       return res.status(404).json({ msg: "Book not found" });
     }
@@ -201,4 +201,3 @@ router.put('/updatepage', async (req, res) => {
 });
 
 module.exports = router;
-                

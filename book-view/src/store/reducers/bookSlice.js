@@ -97,7 +97,7 @@ export const updateLastOpenPage = createAsyncThunk(
   "book/updateLastOpenPage",
   async (pageData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(backendHost+"/api/book/updatepage", pageData);
+      const response = await axios.put(backendHost+"/api/book/updatepage", pageData);
       return response.data; // Returns success message from backend
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -167,8 +167,9 @@ export const bookSlice = createSlice({
     builder.addCase(getAllNote.fulfilled, (state, action) => {
       console.log("Note successfully get:", action.payload);
       if(action.payload.notes){
-        state.booknote = action.payload.notes
-        console.log("state successfully update:", state.booknote);
+        state.booknote = action.payload.notes;
+        state.lastOpenPage= action.payload.lastpageopen;
+        console.log("state successfully update:", state.booknote, "and ",state.lastOpenPage);
       }
       else {
         console.warn("something went wrong");

@@ -37,9 +37,7 @@ const TestSchema = new mongoose.Schema({
     type: String,
     required: true, // Ensure that author name is provided
   },
-  bookFile: {
-    type: String, // Cloudinary URL for the book file
-  },
+  bookFile: [String],
   bookImage: {
     type: String, // Cloudinary URL for the book image
   },
